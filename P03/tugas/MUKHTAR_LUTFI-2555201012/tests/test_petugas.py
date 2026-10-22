@@ -1,27 +1,59 @@
-""" Unit test untuk kelas Petugas """
-from src.model.petugas import Petugas
+
+"""Pengujian untuk kelas Petugas dan PeriodeTugas."""
+
+import pytest
+
+from src.model.petugas import Petugas, PeriodeTugas
 
 
-def test_penyimpanan_data_dua_objek_petugas_independen() -> None:
+def test_membuat_petugas_dan_info() -> None:
     petugas = Petugas("P01", "Mukhtar Lutfi", "Koordinator", "Pagi")
+    assert petugas.get_info() == (
+        "Petugas [P01] - Mukhtar Lutfi "
+        "(Koordinator, Shift: Pagi)"
+    )
 
-    assert petugas._id_petugas == "P01"
-    assert petugas._nama == "Mukhtar Lutfi"
-    assert petugas._jabatan == "Koordinator"
 
-    petugas._nama = "Budi S."
-    assert petugas._nama == "Budi S."
+def test_nama_bisa_diubah_dengan_valid() -> None:
+    petugas = Petugas("P01", "Mukhtar Lutfi")
+    petugas.nama = "Budi"
+    assert petugas.nama == "Budi"
 
-def test_get_info_petugas() -> None:
-    petugas = Petugas("P01", "Mukhtar Lutfi", "Koordinator", "Pagi")
-    info = petugas.get_info()
 
-    assert info == "Petugas [P01] - Mukhtar Lutfi (Koordinator, Shift: Pagi)"
+def test_id_petugas_tidak_bisa_diubah() -> None:
+    petugas = Petugas("P01", "Mukhtar Lutfi")
+    with pytest.raises(AttributeError):
+        petugas.id_petugas = "P02"  # type: ignore[misc]
 
-def test_hitung_tunjangan_shift_default_dan_kustom() -> None:
-    petugas_pagi = Petugas("P01", "Mukhtar Lutfi", shift="Pagi")
-    petugas_sore = Petugas("P02", "Dini", shift="Sore")
 
-    assert petugas_pagi.hitung_tunjangan_shift() == 50000.0
-    assert petugas_sore.hitung_tunjangan_shift() == 60000.0
-    assert petugas_sore.hitung_tunjangan_shift(100000.0) == 120000.0
+def test_nama_kosong_ditolak() -> None:
+    with pytest.raises(ValueError):
+        Petugas("P01", "   ")
+
+
+def test_nama_tidak_bisa_diubah_menjadi_kosong() -> None:
+    petugas = Petugas("P01", "Mukhtar Lutfi")
+    with pytest.raises(ValueError):
+        petugas.nama = ""
+
+
+def test_shift_tidak_valid_ditolak() -> None:
+    with pytest.raises(ValueError):
+        Petugas("P01", "Mukhtar Lutfi", shift="Siang")
+
+
+def test_periode_tugas_tidak_bisa_diubah() -> None:
+    periode = PeriodeTugas("Pagi")
+    with pytest.raises(AttributeError):
+        periode.shift = "Malam"  # type: ignore[misc]
+
+
+def test_tunjangan_shift_sore() -> None:
+    petugas = Petugas("P02", "Dini", shift="Sore")
+    assert petugas.hitung_tunjangan_shift() == 60000.0
+
+
+def test_tarif_tunjangan_nol_ditolak() -> None:
+    petugas = Petugas("P01", "Mukhtar Lutfi")
+    with pytest.raises(ValueError):
+        petugas.hitung_tunjangan_shift(0)
