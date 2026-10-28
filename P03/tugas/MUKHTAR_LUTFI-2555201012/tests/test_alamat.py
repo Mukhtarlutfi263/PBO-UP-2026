@@ -39,3 +39,5 @@ def test_alamat_tidak_bisa_diubah() -> None:
     alamat = Alamat("Suka Maju", "Bangun Sari", "Kampar")
     with pytest.raises(AttributeError):
         alamat.desa = "Desa Baru"  # type: ignore[misc]
+
+
