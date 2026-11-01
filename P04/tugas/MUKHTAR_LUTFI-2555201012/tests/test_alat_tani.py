@@ -1,7 +1,8 @@
 """Pengujian untuk model AlatTani."""
 
-import pytest
+from typing import cast
 
+import pytest
 from src.model.alat_tani import AlatTani
 
 
@@ -54,7 +55,7 @@ def test_tarif_negatif_ditolak() -> None:
 
 def test_tarif_float_ditolak() -> None:
     with pytest.raises(ValueError):
-        AlatTani("A1", "Alat", 100_000.5)
+        AlatTani("A1", "Alat", cast(int, 100_000.5))
 
 
 def test_tarif_boolean_ditolak() -> None:
@@ -133,4 +134,3 @@ def test_jumlah_terdaftar_bertambah() -> None:
     akhir = AlatTani.jumlah_terdaftar()
 
     assert akhir - awal == 2
-    
