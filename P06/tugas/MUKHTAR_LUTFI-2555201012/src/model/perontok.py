@@ -1,6 +1,8 @@
 
 """Model alat pertanian berupa mesin perontok padi."""
 
+from __future__ import annotations
+
 from typing import Final
 
 from .alat_tani import AlatTani
@@ -10,6 +12,7 @@ class Perontok(AlatTani):
     """Mesin perontok padi dengan minimum dua hari sewa."""
 
     MINIMUM_HARI_SEWA: Final[int] = 2
+    JUMLAH_KOLOM_CSV: Final[int] = 4
 
     def __init__(
         self,
@@ -26,6 +29,29 @@ class Perontok(AlatTani):
             raise ValueError("Kapasitas harus lebih dari nol.")
 
         self._kapasitas = kapasitas
+
+    @classmethod
+    def dari_baris_csv(cls, baris: str) -> Perontok:
+        """Membuat objek Perontok dari satu baris CSV."""
+        bagian = baris.strip().split(cls.PEMISAH_BARIS)
+
+        if len(bagian) != cls.JUMLAH_KOLOM_CSV:
+            raise ValueError(
+                "Baris CSV Perontok harus berisi kode, nama, "
+                "tarif harian, dan kapasitas."
+            )
+
+        kode, nama, tarif_teks, kapasitas_teks = bagian
+
+        try:
+            tarif = int(tarif_teks.strip())
+            kapasitas = int(kapasitas_teks.strip())
+        except ValueError:
+            raise ValueError(
+                "Tarif dan kapasitas harus berupa angka."
+            ) from None
+
+        return cls(kode.strip(), nama.strip(), tarif, kapasitas)
 
     @property
     def kapasitas(self) -> int:
